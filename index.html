@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Documentación BT — Ubictum · v1</title>
+<style>
+:root{
+  /* Paleta oficial Ubictum — no se agregan colores fuera de esta lista */
+  --gris:#636469;
+  --azul:#54a4b3;
+  --negro:#000000;
+  --blanco:#ffffff;
+  --azulbajo:#85cccc;
+  --azul2:#3475a7;
+  --verde:#006a7c;
+  --amarillo:#ffc306;
+  --morado:#714787;
+  --carmin:#ea3262;
+  --linea:rgba(99,100,105,.28);
+  --fila-par:rgba(99,100,105,.06);
+}
+*{box-sizing:border-box;}
+html,body{margin:0; padding:0; font-family:'Segoe UI',Arial,sans-serif; color:var(--negro); background:var(--blanco);}
+.view{display:none;}
+.view.active{display:block;}
+
+/* ---------- VERSION BADGE (obligatorio en todo archivo) ---------- */
+.version-badge{ position:fixed; right:14px; bottom:14px; background:var(--negro); color:var(--blanco); font-size:11px; font-weight:700; letter-spacing:.3px; padding:6px 12px; border-radius:20px; z-index:999; opacity:.88; pointer-events:none;}
+
+/* ---------- MENU ---------- */
+#view-menu{ min-height:100vh; display:none; flex-direction:column; align-items:center; justify-content:center; padding:48px 20px;}
+#view-menu.active{display:flex;}
+.menu-header{text-align:center; margin-bottom:44px; max-width:640px;}
+.menu-header .u{font-size:15px; font-weight:800; letter-spacing:2px; color:var(--azul); text-transform:uppercase;}
+.menu-header h1{font-size:27px; margin:10px 0 10px; color:var(--negro); font-weight:700;}
+.menu-header p{color:var(--gris); font-size:14.5px; line-height:1.55; margin:0;}
+.menu-grid{ display:flex; gap:28px; flex-wrap:wrap; justify-content:center; max-width:920px;}
+.menu-card{ width:290px; background:var(--blanco); border:2px solid var(--linea); border-top:5px solid var(--gris); border-radius:12px; padding:30px 24px; text-align:left; cursor:pointer; transition:transform .15s, box-shadow .15s;}
+.menu-card:hover{ transform:translateY(-3px); box-shadow:0 12px 26px rgba(0,0,0,.09);}
+.menu-card .icono{font-size:34px; margin-bottom:16px; display:block;}
+.menu-card h2{font-size:18px; margin:0 0 8px; color:var(--negro);}
+.menu-card p{font-size:13px; color:var(--gris); margin:0 0 12px; line-height:1.55;}
+.menu-card .estado{font-size:11px; font-weight:700; color:var(--blanco); background:var(--gris); display:inline-block; padding:3px 10px; border-radius:20px;}
+.menu-card.uhome{border-top-color:var(--azul);}
+.menu-card.uhome h2{color:var(--azul);}
+.menu-card.uhome .estado{background:var(--azul);}
+.menu-card.bio{border-top-color:var(--verde);}
+.menu-card.bio h2{color:var(--verde);}
+.menu-card.bio .estado{background:var(--verde);}
+
+/* ---------- PROJECT SHELL ---------- */
+.project-topbar{ display:flex; align-items:center; gap:16px; padding:15px 5vw; background:var(--blanco); border-bottom:2px solid var(--linea); position:sticky; top:0; z-index:10; flex-wrap:wrap;}
+.btn-volver{ background:none; border:1px solid var(--linea); border-radius:8px; padding:8px 14px; font-size:13px; color:var(--gris); cursor:pointer; flex-shrink:0;}
+.btn-volver:hover{background:var(--fila-par);}
+.project-titulo{ font-size:16.5px; font-weight:700; flex:1; min-width:180px;}
+.subtabs{ display:flex; gap:8px; flex-shrink:0;}
+.subtab-btn{ border:none; background:var(--fila-par); color:var(--gris); font-size:13px; font-weight:600; padding:9px 18px; border-radius:8px; cursor:pointer;}
+.subtab-btn.active{ background:var(--negro); color:var(--blanco);}
+.subview{ display:none; padding:36px 5vw 100px;}
+.subview.active{display:block;}
+
+/* ---------- DOC CONTENT ---------- */
+.doc{ max-width:900px; margin:0 auto; --accent:var(--gris);}
+.doc.tema-uhome{ --accent:var(--azul); }
+.doc.tema-bio{ --accent:var(--verde); }
+.doc h2{ font-size:20px; color:var(--negro); border-bottom:3px solid var(--accent); padding-bottom:9px; margin-top:42px;}
+.doc h2:first-child{ margin-top:0;}
+.doc h3{ font-size:15.5px; color:var(--negro); margin-top:26px; padding-left:11px; border-left:3px solid var(--accent);}
+.doc p{ font-size:14.5px; line-height:1.68; color:var(--negro);}
+.doc ul{ font-size:14.5px; line-height:1.6; padding-left:22px;}
+.doc li{ margin-bottom:5px;}
+.doc ol{ font-size:14.5px; line-height:1.65; padding-left:22px;}
+.doc ol li{ margin-bottom:8px;}
+.doc table{ width:100%; border-collapse:collapse; margin:16px 0; font-size:12.5px;}
+.doc th{ background:var(--negro); color:var(--blanco); text-align:left; padding:9px 11px; font-weight:600;}
+.doc td{ padding:9px 11px; border-bottom:1px solid var(--linea); vertical-align:top;}
+.doc tr:nth-child(even) td{ background:var(--fila-par);}
+.doc .nota{ background:rgba(255,195,6,.12); border-left:4px solid var(--amarillo); padding:11px 15px; font-size:13px; color:var(--negro); margin:16px 0; border-radius:0 6px 6px 0;}
+.doc .codigo-inline{ background:var(--fila-par); padding:1px 6px; border-radius:4px; font-family:Consolas,monospace; font-size:12.5px;}
+.doc-header{ text-align:left; padding: 4px 0 30px; border-bottom:1px solid var(--linea); margin-bottom:32px;}
+.doc-header .kicker{ color:var(--accent); font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px;}
+.doc-header h1{ font-size:28px; margin:8px 0 6px; color:var(--negro);}
+.doc-header .subt{ color:var(--gris); font-size:14px; margin:0 0 16px;}
+.doc-header .meta{ font-size:11.5px; color:var(--gris); line-height:1.7; border-top:1px solid var(--linea); padding-top:12px; display:flex; flex-wrap:wrap; gap:4px 22px;}
+.doc-header .meta b{ color:var(--negro);}
+
+/* ---------- DIAGRAMA (compartido U-Home) ---------- */
+.uh-lienzo{ display:flex; align-items:center; gap:0; flex-wrap:wrap; row-gap:28px; max-width:1400px; margin:0 auto;}
+.uh-flujo-auth{ display:flex; align-items:center; gap:0; flex-shrink:0;}
+.uh-nodo{ display:flex; flex-direction:column; align-items:center; justify-content:center; width:110px; height:100px; background:var(--blanco); border:2px solid var(--linea); border-radius:14px; text-align:center; padding:8px; flex-shrink:0;}
+.uh-nodo .icono{font-size:26px; margin-bottom:5px;}
+.uh-nodo .nombre{font-size:12px; font-weight:700; line-height:1.25;}
+.uh-nodo .sub{font-size:10px; color:var(--gris); margin-top:2px;}
+.uh-flecha{ width:22px; height:2px; background:var(--linea); position:relative; flex-shrink:0;}
+.uh-flecha::after{ content:''; position:absolute; right:0; top:-4px; border-left:8px solid var(--linea); border-top:5px solid transparent; border-bottom:5px solid transparent;}
+.uh-nodo-home{ width:132px; height:114px; border-width:3px; border-color:var(--azul); box-shadow:0 4px 14px rgba(84,164,179,.25);}
+.uh-nodo-home .nombre{ font-size:14px; color:var(--azul);}
+.uh-abanico{ display:flex; gap:12px; padding-left:20px; margin-left:20px; border-left:3px solid var(--linea); flex-wrap:wrap; row-gap:18px;}
+.uh-tarjeta-col{ display:flex; flex-direction:column; align-items:center; width:108px; flex-shrink:0;}
+.uh-tarjeta{ width:108px; min-height:96px; border-radius:12px; padding:11px 8px; color:var(--blanco); text-align:center; box-shadow:0 4px 12px rgba(0,0,0,.13); display:flex; flex-direction:column; align-items:center; justify-content:center;}
+.uh-tarjeta .icono{ font-size:21px; margin-bottom:5px; display:block;}
+.uh-tarjeta .nombre{ font-size:10.5px; font-weight:800; line-height:1.25;}
+.uh-tipo-badge{ display:inline-block; margin-top:6px; font-size:7.5px; font-weight:700; background:rgba(255,255,255,.3); padding:2px 6px; border-radius:20px;}
+.uh-stack{ margin-top:8px; font-size:8.5px; color:var(--gris); line-height:1.4; text-align:center;}
+.uh-conector-baja{ width:2px; height:12px; background:var(--linea);}
+.c-uaccess{background:var(--gris);} .c-usolicitudes{background:var(--negro);} .c-alertas{background:var(--amarillo); color:var(--negro);}
+.c-alertas .sub, .c-alertas .uh-stack{color:var(--negro);}
+.c-biometricos{background:var(--verde);} .c-colaboradores{background:var(--azul2);} .c-formularios{background:var(--morado);}
+.c-btservicenow{background:var(--carmin);} .c-hms{background:var(--azulbajo); color:var(--negro);}
+.c-hms .uh-stack{color:var(--negro);}
+.uh-leyenda{ margin-top:38px; display:flex; gap:40px; align-items:flex-start; flex-wrap:wrap; border-top:2px solid var(--linea); padding-top:22px; max-width:1400px; margin-left:auto; margin-right:auto;}
+.uh-leyenda h3{ font-size:14px; color:var(--negro); margin:0 0 6px;}
+.uh-leyenda-fila{ display:flex; align-items:flex-start; gap:8px; font-size:12.5px; line-height:1.45; color:var(--gris);}
+.uh-punto{ width:11px; height:11px; border-radius:3px; flex-shrink:0; margin-top:3px;}
+.p-a{background:var(--gris);} .p-b{background:var(--azul2);} .p-c{background:var(--carmin);}
+.uh-leyenda-col{ flex:1; min-width:220px;}
+.diagram-titulo{ text-align:center; margin-bottom:38px;}
+.diagram-titulo h2{ font-size:22px; color:var(--negro); margin:0 0 6px; border:none;}
+.diagram-titulo p{ color:var(--gris); font-size:13.5px; margin:0;}
+
+/* ---------- DIAGRAMA Biométricos (bloques) ---------- */
+.bio-bloque{ max-width:1300px; margin:0 auto 54px; }
+.bio-bloque-titulo{ font-size:15px; font-weight:700; color:var(--verde); text-transform:uppercase; letter-spacing:.4px; margin-bottom:16px; display:flex; align-items:center; gap:10px;}
+.bio-bloque-titulo .num{ width:24px; height:24px; border-radius:50%; background:var(--verde); color:var(--blanco); font-size:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+.bio-fila{ display:flex; align-items:center; gap:0; flex-wrap:wrap; row-gap:20px;}
+.bio-nodo{ display:flex; flex-direction:column; align-items:center; justify-content:center; width:126px; height:104px; background:var(--blanco); border:2px solid var(--linea); border-radius:14px; text-align:center; padding:8px; flex-shrink:0;}
+.bio-nodo .icono{ font-size:26px; margin-bottom:5px;}
+.bio-nodo .nombre{ font-size:11.5px; font-weight:700; line-height:1.25;}
+.bio-nodo .sub{ font-size:9.5px; color:var(--gris); margin-top:2px;}
+.bio-flecha{ width:34px; height:2px; background:var(--linea); position:relative; flex-shrink:0;}
+.bio-flecha::after{ content:''; position:absolute; right:0; top:-4px; border-left:8px solid var(--linea); border-top:5px solid transparent; border-bottom:5px solid transparent;}
+.bio-tabs-wrap{ display:flex; flex-direction:column; align-items:center; margin-left:20px; padding-left:20px; border-left:3px solid var(--linea);}
+.bio-tabs-fila{ display:flex; gap:12px; flex-wrap:wrap; row-gap:14px;}
+.bio-tab-card{ width:118px; min-height:74px; border-radius:12px; padding:10px 8px; color:var(--blanco); background:var(--verde); text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(0,0,0,.13);}
+.bio-tab-card .icono{ font-size:18px; margin-bottom:4px;}
+.bio-tab-card .nombre{ font-size:10px; font-weight:800; line-height:1.25;}
+.bio-lista-grid{ display:flex; gap:14px; flex-wrap:wrap;}
+.bio-lista-card{ width:172px; background:var(--blanco); border:2px solid var(--linea); border-radius:14px; padding:14px; }
+.bio-lista-card .icono{ font-size:20px; margin-bottom:6px; display:block;}
+.bio-lista-card .nombre{ font-size:12.5px; font-weight:800; margin-bottom:4px; color:var(--verde); display:block;}
+.bio-lista-card .desc{ font-size:10.5px; color:var(--gris); line-height:1.4; display:block;}
+.bio-roles-grid{ display:flex; gap:14px; flex-wrap:wrap;}
+.bio-role-card{ width:205px; border-radius:14px; padding:14px; color:var(--blanco);}
+.bio-role-card .nombre{ font-size:13px; font-weight:800; margin-bottom:6px;}
+.bio-role-card .codigos{ font-size:10.5px; background:rgba(255,255,255,.25); border-radius:8px; padding:5px 8px; margin-bottom:8px; display:inline-block;}
+.bio-role-card .alcance{ font-size:10.5px; line-height:1.5;}
+.r-facilitador{ background:var(--gris);} .r-lider{ background:var(--azul2);} .r-tyc{ background:var(--verde);}
+.r-enfermera{ background:var(--carmin);} .r-admin{ background:var(--negro);}
+</style>
+</head>
+<body>
+
+<!-- ===================== MENU ===================== -->
+<div id="view-menu" class="view active">
+  <div class="menu-header">
+    <div class="u">Ubictum · Business Technology</div>
+    <h1>Documentación técnica de portales internos</h1>
+    <p>Elige un proyecto para ver su documento técnico completo (arquitectura, seguridad, infraestructura) y su diagrama.</p>
+  </div>
+  <div class="menu-grid">
+    <div class="menu-card uhome" onclick="mostrarProyecto('uhome')">
+      <span class="icono">🏠</span>
+      <h2>U-Home</h2>
+      <p>Portal único de entrada a las 8 herramientas internas de BT: Power Apps, portales HTML propios y enlaces externos.</p>
+      <span class="estado">Producción</span>
+    </div>
+    <div class="menu-card bio" onclick="mostrarProyecto('bio')">
+      <span class="icono">🕒</span>
+      <h2>Biométricos Colaboradores</h2>
+      <p>Visibilidad de checadas de HikCentral y control de incidencias de asistencia por rol.</p>
+      <span class="estado">Producción · v98</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== U-HOME ===================== -->
+<div id="view-uhome" class="view">
+  <div class="project-topbar">
+    <button class="btn-volver" onclick="mostrarMenu()">← Menú principal</button>
+    <div class="project-titulo">🏠 U-Home</div>
+    <div class="subtabs">
+      <button id="uhome-btn-doc" class="subtab-btn" onclick="mostrarSubtab('uhome','doc')">Documentación Técnica</button>
+      <button id="uhome-btn-diagram" class="subtab-btn" onclick="mostrarSubtab('uhome','diagram')">Diagrama</button>
+    </div>
+  </div>
+
+  <!-- ---- U-Home > Documentación ---- -->
+  <div id="uhome-doc" class="subview">
+    <div class="doc tema-uhome">
+      <div class="doc-header">
+        <div class="kicker">Documento técnico — Arquitectura, Seguridad e Infraestructura</div>
+        <h1>U-Home</h1>
+        <div class="subt">Portal único de entrada a las herramientas internas de BT</div>
+        <div class="meta">
+          <span><b>Preparado para:</b> Infraestructura, Arquitectura, Ciberseguridad, Consejo Técnico</span>
+          <span><b>Elaboró:</b> Héctor Herrera — Especialista BT</span>
+          <span><b>Versión del documento:</b> 1.0</span>
+        </div>
+      </div>
+
+      <h2>1. Resumen ejecutivo</h2>
+      <p>U-Home es el portal único de entrada (launcher) a las herramientas internas del equipo de Business Technology (BT) de Ubictum. Antes de su construcción, cada herramienta se distribuía por separado mediante enlaces sueltos (correo, chats, favoritos del navegador), sin un punto central de acceso ni un criterio uniforme de seguridad. U-Home resuelve ese problema concentrando el acceso a todas las herramientas de BT en una sola pantalla, con un inicio de sesión único basado en la cuenta corporativa de Microsoft 365 de cada colaborador.</p>
+      <p>El portal está publicado en <b>https://btubictum.github.io/U-Home/</b> y es accesible para todo el personal activo de Ubictum (colaboradores internos) más los grupos de invitados de cada herramienta específica. Actualmente aloja 8 accesos, de naturaleza distinta entre sí (aplicaciones de Power Apps preexistentes, portales HTML construidos a la medida, y portales externos administrados por terceros) — esta distinción es central para entender el modelo de seguridad del proyecto y se explica a detalle en la sección 3.</p>
+
+      <h3>1.1 Objetivos del proyecto</h3>
+      <ul>
+        <li>Concentrar en un solo punto de entrada todas las herramientas internas de BT, eliminando la dispersión de enlaces.</li>
+        <li>Unificar la experiencia de inicio de sesión: si el colaborador ya tiene sesión activa de Microsoft en su navegador, U-Home lo reconoce automáticamente, sin pedirle iniciar sesión de nuevo.</li>
+        <li>Dejar el control de acceso fino (quién entra a qué herramienta específica) en manos de cada aplicación individual registrada en Entra ID, no centralizado en el launcher — así cada equipo dueño de una herramienta mantiene el control de sus propios usuarios.</li>
+        <li>Reducir el costo de operación: hosting estático sin servidores propios, aprovechando licenciamiento de Microsoft 365 ya existente en la organización.</li>
+      </ul>
+
+      <h3>1.2 Alcance de este documento</h3>
+      <p>Este documento cubre la arquitectura técnica de U-Home y de los portales HTML propios que aloja (Alertas Operativas, Biométricos Colaboradores, Colaboradores Ubictum y U-Formularios), el modelo de seguridad y control de acceso implementado en Microsoft Entra ID, la infraestructura de hosting y operación, y un inventario técnico completo en el Anexo. No profundiza en la lógica de negocio interna de cada herramienta — eso se documenta por separado, herramienta por herramienta; el foco aquí es cómo están construidas, dónde viven, y cómo se protegen.</p>
+
+      <h2>2. Arquitectura</h2>
+      <h3>2.1 Patrón general</h3>
+      <p>Todas las herramientas construidas a la medida por BT (U-Home, Alertas Operativas, Biométricos Colaboradores, y las que están en construcción: Colaboradores Ubictum y U-Formularios) siguen el mismo patrón arquitectónico: aplicaciones web estáticas de una sola página (HTML + CSS + JavaScript), sin servidor propio ni backend intermedio, que se autentican directamente contra Microsoft Entra ID y leen/escriben datos directamente contra Microsoft Graph API, usando listas de SharePoint como capa de almacenamiento (base de datos).</p>
+      <p><b>Flujo típico de una sesión:</b></p>
+      <ol>
+        <li>El colaborador abre la URL del portal (GitHub Pages) en su navegador.</li>
+        <li>El JavaScript del portal (librería MSAL.js) intenta un inicio de sesión silencioso (<i>ssoSilent / acquireTokenSilent</i>) contra la app registrada en Entra ID de ESE portal específico.</li>
+        <li>Si el colaborador ya tiene sesión activa de Microsoft y está autorizado para esa app (grupo de seguridad asignado), obtiene un token sin fricción — no ve ninguna pantalla de login.</li>
+        <li>Si no hay sesión previa, o el token silencioso falla, se dispara el flujo interactivo estándar de Microsoft (login + MFA si aplica).</li>
+        <li>Con el token obtenido, el portal llama a Microsoft Graph API para leer o escribir directamente en las listas de SharePoint que actúan como su base de datos.</li>
+      </ol>
+
+      <h3>2.2 Por qué este patrón</h3>
+      <p>Se eligió deliberadamente NO tener un servidor propio ni una base de datos tradicional: todo el cómputo ocurre en el navegador del usuario, y la persistencia vive en listas de SharePoint dentro de sitios de Microsoft 365 ya existentes en el tenant. Esto reduce la superficie de mantenimiento (no hay servidores que parchar, no hay bases de datos que respaldar por separado) y aprovecha licenciamiento de M365 que la organización ya paga. El costo de hosting es $0 — GitHub Pages es gratuito para repositorios de este tipo.</p>
+
+      <h3>2.3 Repositorios y hosting</h3>
+      <p>Cada portal vive en su propio repositorio de GitHub bajo la organización <b>btubictum</b>, publicado como sitio estático vía GitHub Pages. No es un monorepositorio — son repositorios independientes, cada uno con su propio ciclo de despliegue (subir el HTML actualizado directamente al repositorio publica la nueva versión).</p>
+      <table>
+        <tr><th>Portal</th><th>URL pública</th><th>Repositorio (org. btubictum)</th></tr>
+        <tr><td>U-Home (launcher)</td><td>btubictum.github.io/U-Home/</td><td>U-Home</td></tr>
+        <tr><td>Alertas Operativas</td><td>btubictum.github.io/alertas-operativas/</td><td>alertas-operativas</td></tr>
+        <tr><td>Biométricos Colaboradores</td><td>btubictum.github.io/info_biometricos/</td><td>info_biometricos</td></tr>
+        <tr><td>Colaboradores Ubictum (en construcción)</td><td>btubictum.github.io/headcount/</td><td>headcount</td></tr>
+        <tr><td>U-Formularios (en construcción)</td><td>btubictum.github.io/forms/</td><td>forms</td></tr>
+      </table>
+
+      <h3>2.4 Los tres tipos de tarjeta en U-Home</h3>
+      <p>No todas las tarjetas de U-Home apuntan al mismo tipo de aplicación. Es importante distinguir tres categorías, porque cada una tiene un modelo de seguridad y de propiedad técnica distinto:</p>
+      <p><b>Tipo A — Aplicaciones de Power Apps (preexistentes al proyecto U-Home):</b> U-Access y U-Solicitudes Mantenimiento son aplicaciones de Microsoft Power Apps, construidas dentro del tenant de Ubictum antes de que existiera U-Home. Por eso no se reconstruyeron como portales HTML — U-Home simplemente aloja una tarjeta con el enlace directo a la app ya existente. Su seguridad la gestiona nativamente la plataforma Power Platform / Dataverse del tenant, no el proyecto U-Home.</p>
+      <p><b>Tipo B — Portales HTML propios (construidos por BT):</b> Alertas Operativas y Biométricos Colaboradores ya están en producción; Colaboradores Ubictum y U-Formularios están en construcción. Siguen el patrón técnico de la sección 2.1 — HTML + MSAL.js + Microsoft Graph, con su propia app registrada en Entra ID cada uno, gestionados completamente por BT.</p>
+      <p><b>Tipo C — Portales externos (administrados por terceros):</b> BT Services Now (ServiceNow, gestionado en conjunto con Nadro) y HMS (Hardware Management System) son portales completamente ajenos a la infraestructura de BT Ubictum. U-Home únicamente aloja un enlace directo hacia ellos — no hay integración técnica, no comparten autenticación con el tenant, y cada plataforma define y administra su propia seguridad, fuera del alcance de este proyecto.</p>
+
+      <h2>3. Seguridad y control de acceso</h2>
+      <h3>3.1 Modelo de seguridad decidido</h3>
+      <p>La decisión de diseño central del proyecto: U-Home (el launcher) solo valida que la persona pertenezca al tenant de Ubictum — es un login simple, sin distinción de permisos internos. El control fino de "quién puede entrar a qué herramienta específica" NO vive centralizado en U-Home; vive en el registro de Entra ID de cada aplicación individual (Tipo B), mediante la opción "Assignment required = Sí" en su Enterprise Application, con grupos de seguridad asignados en "Users and groups".</p>
+      <div class="nota">Tener acceso a U-Home no implica tener acceso a ninguna herramienta específica — cada tarjeta Tipo B revalida el acceso de forma independiente al abrirse.</div>
+
+      <h3>3.2 Grupos de seguridad en Entra ID</h3>
+      <table>
+        <tr><th>Grupo</th><th>Tipo</th><th>Uso</th></tr>
+        <tr><td>U-Colaboradores</td><td>Dinámico (regla: <span class="codigo-inline">user.userType -eq "Member"</span>)</td><td>Todo el personal interno del tenant automáticamente. Asignado a U-Home.</td></tr>
+        <tr><td>U-AlertasOperativas-Invitados / -Colaboradores</td><td>Asignación manual</td><td>Acceso a Alertas Operativas</td></tr>
+        <tr><td>U-Biometricos-Invitados / -Colaboradores</td><td>Asignación manual</td><td>Acceso a Biométricos Colaboradores</td></tr>
+        <tr><td>U-PersonalActivo-Invitados / -Colaboradores</td><td>Asignación manual</td><td>Acceso a Colaboradores Ubictum (en construcción)</td></tr>
+        <tr><td>U-Forms-Invitados / -Colaboradores</td><td>Asignación manual</td><td>Acceso a U-Formularios (en construcción)</td></tr>
+      </table>
+      <p>U-Colaboradores es un grupo dinámico con la regla anterior, por lo que se mantiene sincronizado automáticamente con la plantilla del tenant (183 miembros al momento de escribir este documento) sin necesidad de mantenimiento manual. U-Home está asignado a este grupo más los 4 grupos "-Invitados" directamente — Entra ID no soporta grupos anidados para asignación de acceso a Enterprise Applications, por lo que no fue posible crear un grupo contenedor único de invitados.</p>
+
+      <h3>3.3 Vulnerabilidad detectada y corregida — sesión compartida entre subdominios</h3>
+      <p>Durante el desarrollo se detectó una fuga de seguridad real: como U-Home y los 4 portales HTML propios viven bajo el mismo dominio raíz (btubictum.github.io), comparten el localStorage del navegador. El código original de autenticación confiaba en <span class="codigo-inline">msalInstance.getAllAccounts()</span> sin más validación — esto permitía que cualquier persona con una sesión válida en CUALQUIERA de los portales quedara marcada como "conectada" en los DEMÁS, sin que el sistema verificara si esa persona realmente tenía asignación de acceso a ese portal en particular.</p>
+      <p><b>Corrección aplicada</b> en los cuatro portales (Alertas Operativas v16, Biométricos v11, U-Formularios v9, U-Home): cada aplicación ahora exige su propio <i>acquireTokenSilent / ssoSilent</i> específico contra SU PROPIA app registrada antes de conceder acceso, en vez de conformarse con la sola presencia de una cuenta en caché. La sesión persistente entre visitas se preserva únicamente para quien de verdad tiene asignación real en cada aplicación individual.</p>
+
+      <h3>3.4 Permisos de Microsoft Graph API por aplicación</h3>
+      <table>
+        <tr><th>Aplicación</th><th>Client ID</th><th>Tenant ID</th><th>Permisos Graph (Delegados)</th></tr>
+        <tr><td>U-Home</td><td>0f3847ea-4540-4fd6-a4b2-0798df2cec37</td><td>5b149376-e794-49a0-a90d-7e8dab892910</td><td>User.Read (login básico únicamente — no lee ni escribe SharePoint)</td></tr>
+        <tr><td>Alertas Operativas</td><td><i>Pendiente: confirmar Client ID exacto</i></td><td>5b149376-e794-49a0-a90d-7e8dab892910</td><td>Sites.ReadWrite.All, Files.ReadWrite.All</td></tr>
+        <tr><td>Biométricos Colaboradores</td><td>390003b8-ac7e-4b28-95fa-92da2fbe08de</td><td>5b149376-e794-49a0-a90d-7e8dab892910</td><td>Sites.ReadWrite.All, Files.ReadWrite.All</td></tr>
+        <tr><td>Colaboradores Ubictum</td><td><i>En construcción</i></td><td>5b149376-e794-49a0-a90d-7e8dab892910</td><td><i>En construcción</i></td></tr>
+        <tr><td>U-Formularios</td><td><i>En construcción</i></td><td>5b149376-e794-49a0-a90d-7e8dab892910</td><td><i>En construcción</i></td></tr>
+      </table>
+      <div class="nota">En todos los casos el consentimiento de administrador (admin consent) ya fue concedido para los permisos delegados listados. Todas las apps comparten el mismo Tenant ID porque operan dentro del mismo tenant de Ubictum.</div>
+
+      <h3>3.5 Seguridad de las tarjetas Tipo A y Tipo C</h3>
+      <p>Las aplicaciones de Power Apps (U-Access, U-Solicitudes Mantenimiento) usan el modelo de seguridad nativo de la plataforma Power Platform / Dataverse del tenant de Ubictum — preexistente al proyecto U-Home y fuera de su gestión directa, aunque dentro del mismo tenant corporativo.</p>
+      <p>Los portales externos (BT Services Now, HMS) están completamente fuera del perímetro de seguridad de U-Home: no comparten autenticación con el tenant de Ubictum, tienen su propio login y sus propias reglas de acceso definidas por cada plataforma. U-Home no realiza ninguna validación antes de redirigir a estos enlaces — es responsabilidad exclusiva de cada plataforma externa proteger su propio acceso.</p>
+
+      <h2>4. Infraestructura y operación</h2>
+      <h3>4.1 Componentes de infraestructura</h3>
+      <table>
+        <tr><th>Componente</th><th>Proveedor</th><th>Función</th></tr>
+        <tr><td>Hosting estático</td><td>GitHub Pages (org. btubictum)</td><td>Sirve el HTML/CSS/JS de cada portal Tipo B, sin costo</td></tr>
+        <tr><td>Autenticación</td><td>Microsoft Entra ID</td><td>Identidad, login, MFA, grupos de seguridad, asignación de acceso por app</td></tr>
+        <tr><td>Autorización en el navegador</td><td>MSAL.js</td><td>Maneja el flujo de tokens (silencioso e interactivo) contra Entra ID</td></tr>
+        <tr><td>Datos / persistencia</td><td>Microsoft Graph API + Listas de SharePoint</td><td>Actúa como base de datos de cada portal Tipo B</td></tr>
+        <tr><td>Licenciamiento</td><td>Microsoft 365 (ya existente)</td><td>No se contrató licenciamiento adicional para este proyecto</td></tr>
+      </table>
+
+      <h3>4.2 Costos de operación</h3>
+      <p>El costo incremental de hosting es $0 — GitHub Pages es gratuito para este tipo de repositorio. El proyecto no requirió contratar infraestructura de servidores, bases de datos, ni licencias adicionales: se apoya completamente en licenciamiento de Microsoft 365 que la organización ya tenía contratado para otros fines.</p>
+
+      <h3>4.3 Despliegue y mantenimiento</h3>
+      <p>No existe un pipeline de CI/CD formal: cada portal se actualiza subiendo directamente el archivo HTML corregido al repositorio correspondiente en GitHub, lo cual publica la nueva versión de inmediato en GitHub Pages. Cada portal Tipo B mantiene un número de versión visible en su propia interfaz para poder rastrear qué build está corriendo en producción en un momento dado.</p>
+
+      <h3>4.4 Responsable técnico</h3>
+      <p>Héctor Herrera, Especialista BT en Ubictum, es responsable del diseño, desarrollo y mantenimiento de U-Home y de los portales Tipo B (Alertas Operativas, Biométricos Colaboradores, y los que están en construcción). La administración de Entra ID (grupos, asignaciones, registros de aplicación) también recae en este rol dentro del alcance de BT.</p>
+
+      <h2>5. Anexo — Inventario técnico de portales</h2>
+      <table>
+        <tr><th>Tarjeta en U-Home</th><th>Tipo</th><th>Estado</th><th>Color de marca</th></tr>
+        <tr><td>U-Access</td><td>A — Power Apps</td><td>Producción (preexistente)</td><td>—</td></tr>
+        <tr><td>U-Solicitudes Mantenimiento</td><td>A — Power Apps</td><td>Producción (preexistente)</td><td>—</td></tr>
+        <tr><td>Alertas Operativas</td><td>B — Portal HTML propio</td><td>Producción</td><td>Amarillo (#ffc306)</td></tr>
+        <tr><td>Biométricos Colaboradores</td><td>B — Portal HTML propio</td><td>Producción</td><td>Verde (#006a7c)</td></tr>
+        <tr><td>Colaboradores Ubictum</td><td>B — Portal HTML propio</td><td>En construcción</td><td>Azul (#3475a7)</td></tr>
+        <tr><td>U-Formularios</td><td>B — Portal HTML propio</td><td>En construcción</td><td>Morado (#714787)</td></tr>
+        <tr><td>BT Services Now</td><td>C — Portal externo (ServiceNow / Nadro)</td><td>Producción (gestión ajena a BT)</td><td>Carmín (#ea3262)</td></tr>
+        <tr><td>HMS (Hardware Management System)</td><td>C — Portal externo</td><td>Producción (gestión ajena a BT)</td><td>Azul bajo (#85cccc)</td></tr>
+      </table>
+
+      <h3>5.1 Descripciones públicas de cada tarjeta</h3>
+      <ul>
+        <li><b>U-Access</b> — QR de acceso para Visitas Externas, Colaboradores, Transportistas y Proveedores de Recibo.</li>
+        <li><b>U-Solicitudes Mantenimiento</b> — Portal de solicitudes al equipo de Mantenimiento.</li>
+        <li><b>Alertas Operativas</b> — Reporte de incidencias operativas de los CDR (surtido, embarque, dato maestro, transporte, merma).</li>
+        <li><b>Biométricos Colaboradores</b> — Visibilidad de checadas y registro de incidencias de asistencia para líderes y facilitadores.</li>
+        <li><b>Colaboradores Ubictum</b> — Personal activo (en construcción).</li>
+        <li><b>U-Formularios</b> — Formularios internos de BT (en construcción).</li>
+        <li><b>BT Services Now</b> — Portal de solicitudes de servicio del equipo de Business Technology (BT Ubictum / Nadro).</li>
+        <li><b>HMS</b> — Portal para asignación y control de radiofrecuencias y activos de TI.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ---- U-Home > Diagrama ---- -->
+  <div id="uhome-diagram" class="subview">
+    <div class="diagram-titulo">
+      <h2>U-Home — Diagrama de arquitectura</h2>
+      <p>Flujo de autenticación y las 8 herramientas alojadas, agrupadas por tipo de construcción</p>
+    </div>
+
+    <div class="uh-lienzo">
+      <div class="uh-flujo-auth">
+        <div class="uh-nodo">
+          <span class="icono">🧑‍💼</span><span class="nombre">Colaborador</span><span class="sub">Ubictum</span>
+        </div>
+        <div class="uh-flecha"></div>
+        <div class="uh-nodo">
+          <span class="icono">🌐</span><span class="nombre">Navegador</span><span class="sub">MSAL.js</span>
+        </div>
+        <div class="uh-flecha"></div>
+        <div class="uh-nodo">
+          <span class="icono">🔐</span><span class="nombre">Microsoft<br>Entra ID</span><span class="sub">Login + grupos</span>
+        </div>
+        <div class="uh-flecha"></div>
+        <div class="uh-nodo uh-nodo-home">
+          <span class="icono">🏠</span><span class="nombre">U-Home</span><span class="sub">GitHub Pages<br>Login básico</span>
+        </div>
+      </div>
+
+      <div class="uh-abanico">
+        <div class="uh-tarjeta-col">
+          <div class="uh-tarjeta c-uaccess"><span class="icono">📷</span><span class="nombre">U-Access</span><span class="uh-tipo-badge">TIPO A</span></div>
+          <div class="uh-conector-baja"></div>
+          <div class="uh-stack">Power Apps · Tenant Ubictum</div>
+        </div>
+        <div class="uh-tarjeta-col">
+          <div class="uh-tarjeta c-usolicitudes"><span class="icono">🛠️</span><span class="nombre">U-Solicitudes<br>Mantenimiento</span><span class="uh-tipo-badge">TIPO A</span></div>
+          <div class="uh-conector-baja"></div>
+          <div class="uh-stack">Power Apps · Tenant Ubictum</div>
+        </div>
+        <div class="uh-tarjeta-col">
+          <div class="uh-tarjeta c-alertas"><span class="icono">🚨</span><span class="nombre">Alertas<br>Operativas</span><span class="uh-tipo-badge">TIPO B</span></div>
+          <div class="uh-conector-baja"></div>
+          <div class="uh-stack">GitHub Pages · Entra ID propia · SharePoint/Graph</div>
+        </div>
+        <div class="uh-tarjeta-col">
+          <div class="uh-tarjeta c-biometricos"><span class="icono">🕒</span><span class="nombre">Biométricos<br>Colaboradores</span><span class="uh-tipo-badge">TIPO B</span></div>
+          <div class="uh-conector-baja"></div>
+          <div class="uh-stack">GitHub Pages · Entra ID propia · SharePoint/Graph</div>
+        </div>
+        <div class="uh-tarjeta-col">
+          <div class="uh-tarjeta c-colaboradores"><span class="icono">👥</span><span class="nombre">Colaboradores<br>Ubictum</span><span class="uh-tipo-badge">EN CONSTRUCCIÓN</span></div>
+          <div class="uh-conector-baja"></div>
+          <div class="uh-stack">GitHub Pages · Entra ID propia · SharePoint/Graph</div>
+        </div>
+        <div class="uh-tarjeta-col">
+          <div class="uh-tarjeta c-formularios"><span class="icono">📝</span><span class="nombre">U-Formularios</span><span class="uh-tipo-badge">EN CONSTRUCCIÓN</span></div>
+          <div class="uh-conector-baja"></div>
+          <div class="uh-stack">GitHub Pages · Entra ID propia · SharePoint/Graph</div>
+        </div>
+        <div class="uh-tarjeta-col">
+          <div class="uh-tarjeta c-btservicenow"><span class="icono">🔗</span><span class="nombre">BT Services<br>Now</span><span class="uh-tipo-badge">TIPO C</span></div>
+          <div class="uh-conector-baja"></div>
+          <div class="uh-stack">ServiceNow / Nadro · Login propio</div>
+        </div>
+        <div class="uh-tarjeta-col">
+          <div class="uh-tarjeta c-hms"><span class="icono">💻</span><span class="nombre">HMS</span><span class="uh-tipo-badge">TIPO C</span></div>
+          <div class="uh-conector-baja"></div>
+          <div class="uh-stack">Portal externo · Login propio</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="uh-leyenda">
+      <div class="uh-leyenda-col">
+        <h3>Tipo A — Power Apps preexistente</h3>
+        <div class="uh-leyenda-fila"><span class="uh-punto p-a"></span> Construida antes de U-Home, dentro del tenant. Seguridad nativa de Power Platform / Dataverse, fuera de la gestión de BT.</div>
+      </div>
+      <div class="uh-leyenda-col">
+        <h3>Tipo B — Portal HTML propio</h3>
+        <div class="uh-leyenda-fila"><span class="uh-punto p-b"></span> Construido por BT. App registrada en Entra ID propia, con "Assignment required" y grupos de seguridad.</div>
+      </div>
+      <div class="uh-leyenda-col">
+        <h3>Tipo C — Portal externo</h3>
+        <div class="uh-leyenda-fila"><span class="uh-punto p-c"></span> Administrado por terceros. U-Home solo aloja el enlace, sin integración técnica.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== BIOMÉTRICOS COLABORADORES ===================== -->
+<div id="view-bio" class="view">
+  <div class="project-topbar">
+    <button class="btn-volver" onclick="mostrarMenu()">← Menú principal</button>
+    <div class="project-titulo">🕒 Biométricos Colaboradores</div>
+    <div class="subtabs">
+      <button id="bio-btn-doc" class="subtab-btn" onclick="mostrarSubtab('bio','doc')">Documentación Técnica</button>
+      <button id="bio-btn-diagram" class="subtab-btn" onclick="mostrarSubtab('bio','diagram')">Diagrama</button>
+    </div>
+  </div>
+
+  <!-- ---- Biométricos > Documentación ---- -->
+  <div id="bio-doc" class="subview">
+    <div class="doc tema-bio">
+      <div class="doc-header">
+        <div class="kicker">Documento técnico — Infraestructura, Arquitectura y Seguridad</div>
+        <h1>Biométricos Colaboradores</h1>
+        <div class="subt">Visibilidad de checadas y control de incidencias de asistencia</div>
+        <div class="meta">
+          <span><b>Preparado para:</b> Infraestructura, Arquitectura, Ciberseguridad, Consejo Técnico</span>
+          <span><b>Elaboró:</b> Héctor Herrera — Especialista BT</span>
+          <span><b>Versión del documento:</b> 1.0</span>
+        </div>
+      </div>
+
+      <h2>1. Resumen ejecutivo</h2>
+      <p>Biométricos Colaboradores es el portal interno que le da a Facilitadores, Líderes, Talento y Cultura (TyC), Enfermería y Administradores visibilidad sobre las checadas de entrada y salida del personal de almacén, y les permite capturar y dar seguimiento a incidencias de asistencia (faltas, permisos, incapacidades, vacaciones, descansos y retardos) con un control de permisos diferenciado por rol.</p>
+      <p>El portal forma parte del ecosistema de U-Home (tarjeta "Biométricos Colaboradores", color verde) y sigue el mismo patrón arquitectónico que el resto de las herramientas de BT: aplicación web estática sin servidor propio, autenticada contra Microsoft Entra ID, que usa Microsoft Graph API para leer y escribir directamente en listas de SharePoint que hacen las veces de base de datos.</p>
+      <p>A diferencia de otros portales del ecosistema, Biométricos Colaboradores tiene un modelo de seguridad interno considerablemente más elaborado: no basta con pertenecer al tenant de Ubictum — el acceso a cada pestaña, y la visibilidad de cada colaborador dentro de esas pestañas, depende de un catálogo de roles propio (CatAccesos) y de una jerarquía organizacional (Líder → Facilitador → Colaborador) que el portal resuelve en cada consulta. La sección 3 de este documento detalla ese modelo a fondo, incluyendo vulnerabilidades reales detectadas y corregidas durante su desarrollo.</p>
+
+      <h3>1.1 Estado actual</h3>
+      <p>El portal está en producción en <b>https://btubictum.github.io/info_biometricos/</b>, actualmente en la versión v98. Cuenta con 6 pestañas (Registros, Registros por Día, Registros por Semana, Registros por Biométrico, Registro Incidencias, y Carga de Data) y 7 listas de SharePoint como modelo de datos. La fuente original de las checadas es el sistema biométrico HikCentral Professional; la carga de esas checadas al portal es hoy un proceso manual (exportar de HikCentral y subir el Excel en la pestaña Carga de Data), con un flujo de automatización (RPA) en construcción — ver sección 2.6.</p>
+
+      <h2>2. Arquitectura</h2>
+      <h3>2.1 Patrón general</h3>
+      <p>Aplicación de una sola página (HTML + CSS + JavaScript), sin backend propio ni base de datos tradicional. La autenticación corre en el navegador vía MSAL.js contra la app registrada en Entra ID del portal; una vez autenticado, el JavaScript llama directamente a Microsoft Graph API para leer y escribir en las listas de SharePoint del sitio U-Biometricos (https://ubictum.sharepoint.com/sites/U-Biometricos), que actúan como base de datos relacional simplificada.</p>
+
+      <h3>2.2 Fuente original de los datos: HikCentral Professional</h3>
+      <p>Las checadas reales de entrada y salida se generan en HikCentral Professional (consola en 172.21.3.4), el sistema de control de acceso biométrico de la planta. Se evaluaron dos vías de integración directa que resultaron no viables:</p>
+      <ul>
+        <li><b>OpenAPI de HikCentral:</b> descartada porque el campo "Punto de acceso" (qué puerta/biométrico específico registró la checada) solo está disponible en la pantalla de Búsqueda de la consola, no en los reportes que expone la API.</li>
+        <li><b>Recepción automática por correo:</b> descartada por la misma limitación de datos disponibles.</li>
+      </ul>
+      <p>La vía operativa vigente es manual: exportar el Excel desde la pantalla de Búsqueda de HikCentral y subirlo en la pestaña Carga de Data del portal, replicando en software el mismo procedimiento que ya se hacía manualmente. La sección 2.6 describe la automatización de este proceso, actualmente en construcción.</p>
+
+      <h3>2.3 Estructura de pestañas</h3>
+      <table>
+        <tr><th>Pestaña</th><th>Función</th></tr>
+        <tr><td>Registros</td><td>Listado crudo de checadas individuales, con filtros por fecha, ID, nombre, turno, área, biométrico, facilitador, líder y jornada.</td></tr>
+        <tr><td>Registros por Día</td><td>Agrupa las checadas de cada colaborador en sesiones (entrada/salida) por día calendario.</td></tr>
+        <tr><td>Registros por Semana</td><td>Misma agrupación por sesión, presentada en una matriz semanal (Lunes a Domingo) por colaborador.</td></tr>
+        <tr><td>Registros por Biométrico</td><td>Matriz de checadas por colaborador y por punto de acceso específico (16 biométricos/puertas distintos).</td></tr>
+        <tr><td>Registro Incidencias</td><td>Captura y consulta de incidencias de asistencia (F/A/PSG/P/I/II/V/D/R/RJ) por colaborador y semana, con control de permisos por rol — ver sección 3.2.</td></tr>
+        <tr><td>Carga de Data</td><td>Sube el Excel exportado de HikCentral a la lista RegBio26; incluye herramientas de reparación de datos maestro y de horas extra, y administración de CatColab — acceso restringido a TyC/Admin, ver sección 3.4.</td></tr>
+      </table>
+
+      <h3>2.4 Modelo de datos — listas de SharePoint</h3>
+      <table>
+        <tr><th>Lista</th><th>Contenido</th></tr>
+        <tr><td>RegBio26</td><td>Checadas individuales: IDColab, Nombre, Grupo, TurnoAsignado, TurnoEfectivo, Area, TipoColab, Fecha, Hora, Semana, YearSemana, Biometrico, Llave (IDColab_Fecha_Hora), Facilitador, Lider, Jornada, HoraExtra.</td></tr>
+        <tr><td>CatColab</td><td>Catálogo maestro de colaboradores: IDColab, Nombre, TurnoAsignado, Facilitador, Lider, Puesto, Jornada, Descansos, Estatus. Fuente de verdad vigente para Facilitador/Líder/Jornada/Descansos.</td></tr>
+        <tr><td>CatTurnos</td><td>Catálogo de 20 turnos (horario de entrada/salida, horas por día, breaks, días de la semana).</td></tr>
+        <tr><td>CatAccesos</td><td>Roles de usuario del portal: Correo, Nombre, Rol (Facilitador / Lider / TyC / Enfermera / Admin) — un renglón por rol si alguien tiene más de uno.</td></tr>
+        <tr><td>RegIncidencias</td><td>Captura de incidencias por colaborador y día: IDColab, Nombre, Fecha, Codigo, HoraEnt, HoraSal, Semana, YearSemana, Cerrado, CerradoPor, FechaCerrado, GuardadoPor, FechaGuardado, ModificadoPorTyC, FechaTyC, ModificadoPorEnfermeria, FechaEnfermeria.</td></tr>
+        <tr><td>Incidencias</td><td>Catálogo de tipos de incidencia disponibles (Incidencia, Abreviatura) — alimenta el combo de captura.</td></tr>
+        <tr><td>Log</td><td>Bitácora de cada Carga de Data: rango de fechas, registros leídos/insertados/duplicados/descartados, resultado.</td></tr>
+      </table>
+
+      <h3>2.5 Agrupación de checadas en sesiones (entrada/salida)</h3>
+      <p>Una checada cruda es un solo evento (una hora, un biométrico). El portal agrupa las checadas de un mismo colaborador en "sesiones" de entrada/salida para poder mostrar horarios y calcular horas extra y retardos. La regla de agrupación distingue dos casos según la Jornada vigente del colaborador (consultada en vivo contra CatColab, no contra el dato histórico guardado en la checada):</p>
+      <ul>
+        <li><b>Jornada diurna</b> (no cruza medianoche): todas las checadas del mismo día calendario forman una sola sesión, sin importar cuántas horas pasen entre ellas — así un día largo con horas extra no se parte, y nunca se mezcla con el día siguiente aunque el hueco entre checadas sea corto.</li>
+        <li><b>Jornada nocturna</b> (cruza medianoche, ej. 21:00–7:30): se agrupa por horas transcurridas desde la entrada (tope de 13 horas), lo que sí permite que la sesión cruce la medianoche correctamente.</li>
+        <li><b>Jornada desconocida</b> (colaborador sin match en CatColab): se aplica el criterio diurno como respaldo seguro, ya que es el comportamiento correcto para la mayoría del personal.</li>
+      </ul>
+      <p>Los checados registrados en el biométrico de la puerta del comedor ("Door_Panorama Comedor") no se muestran como hora de entrada/salida real en pantalla, ni se usan como base para calcular Retardo — se excluyeron de ambos cálculos porque no representan el ingreso o la salida real de la jornada laboral.</p>
+
+      <h3>2.6 Automatización en construcción (RPA)</h3>
+      <p>Se está construyendo un flujo de Power Automate Desktop que automatiza por completo el ciclo manual actual: inicia sesión en HikCentral, navega a la pantalla de Búsqueda, filtra por el rango de tiempo correspondiente, exporta el Excel, y lo sube directamente a la pestaña Carga de Data del portal. El plan es correr 3 flujos programados idénticos (1:00 a.m. con el filtro "Ayer", 7:20 a.m. y 11:00 a.m. con el filtro "Hoy"). Este proyecto requiere licencia de RPA desatendido (Unattended), una máquina virtual encendida de forma permanente, cuentas de servicio dedicadas, y una excepción de Acceso Condicional (MFA) para esas cuentas específicamente en esa máquina.</p>
+      <div class="nota">Al momento de este documento el flujo cubre login, navegación, filtro, exportación y descarga del archivo; queda pendiente el tramo de subida automática a Carga de Data.</div>
+
+      <h2>3. Seguridad y control de acceso</h2>
+      <h3>3.1 Autenticación</h3>
+      <table>
+        <tr><th>Parámetro</th><th>Valor</th></tr>
+        <tr><td>App registrada en Entra ID</td><td>Ubi-Biometricos</td></tr>
+        <tr><td>Client ID</td><td>390003b8-ac7e-4b28-95fa-92da2fbe08de</td></tr>
+        <tr><td>Tenant ID</td><td>5b149376-e794-49a0-a90d-7e8dab892910</td></tr>
+        <tr><td>Permisos de Graph (Delegados)</td><td>Sites.ReadWrite.All, Files.ReadWrite.All — consentimiento de administrador concedido</td></tr>
+        <tr><td>Sitio de SharePoint</td><td>https://ubictum.sharepoint.com/sites/U-Biometricos</td></tr>
+      </table>
+      <p>Igual que el resto de los portales Tipo B del ecosistema, la app exige "Assignment required = Sí" en Entra ID, con los grupos U-Biometricos-Invitados y U-Biometricos-Colaboradores asignados como condición de entrada. Esta es la primera capa de seguridad — determina quién puede abrir el portal en absoluto. Las capas siguientes (qué pestaña, qué colaboradores) se resuelven por software, dentro de la aplicación, y se documentan a continuación.</p>
+
+      <h3>3.2 Autorización por rol — catálogo CatAccesos</h3>
+      <p>El acceso a la pestaña Registro Incidencias, y por separado el acceso a la pestaña Carga de Data, dependen de un catálogo propio (CatAccesos) que asocia el correo del usuario con uno o más roles: Facilitador, Lider, TyC (Talento y Cultura), Enfermera, o Admin. Una persona puede tener varios roles (un renglón por rol); sus permisos son la unión de todos los que tenga. Sin ningún rol asignado en CatAccesos, la persona ve una pantalla de "Sin acceso" — con el correo detectado y el detalle del error, para poder depurar el caso sin adivinar.</p>
+      <table>
+        <tr><th>Rol</th><th>Códigos que puede capturar</th><th>Alcance de colaboradores</th></tr>
+        <tr><td>Facilitador</td><td>F, PSG, V, D</td><td>Solo sus propios colaboradores directos</td></tr>
+        <tr><td>Líder</td><td>F, PSG, V, D</td><td>Sus directos, MÁS los de todos sus Facilitadores (árbol completo — ver 3.3)</td></tr>
+        <tr><td>TyC (Talento y Cultura)</td><td>P, A, R, RJ</td><td>Todos los colaboradores, sin restricción</td></tr>
+        <tr><td>Enfermera</td><td>I, II</td><td>Todos los colaboradores, sin restricción</td></tr>
+        <tr><td>Admin</td><td>Los 10 códigos</td><td>Todos los colaboradores, sin restricción</td></tr>
+      </table>
+      <p>Códigos: F = Falta, A = Asistencia, PSG = Permiso sin goce, P = Permiso con goce, I = Incapacidad (seguro social), II = Incapacidad interna, V = Vacaciones, D = Descanso, R = Retardo, RJ = Retardo justificado.</p>
+      <p>Los roles "elevados" (Admin, TyC, Enfermera) tienen dos privilegios adicionales que Facilitador/Líder no tienen: pueden editar días que ya tienen una checada biométrica real (los demás roles no pueden tocar esos días, aunque el código esté disponible en su lista), y pueden seguir corrigiendo una semana aunque ya esté formalmente cerrada.</p>
+      <div class="nota"><b>Regla especial — Vacaciones (V):</b> Facilitador y Líder solo pueden asignar el código V a partir de hoy o a fecha futura — no pueden marcar vacaciones en fechas ya pasadas. Admin es la única excepción y puede asignarlo en cualquier fecha, para corregir casos excepcionales.</div>
+
+      <h3>3.3 Visibilidad jerárquica: árbol Líder → Facilitador → Colaborador</h3>
+      <p>Un Líder no solo debe ver a los colaboradores que tiene asignados de forma directa — también debe ver a todos los colaboradores de cada uno de sus Facilitadores (segundo nivel del árbol organizacional). Esta regla se resuelve consultando, para el Facilitador de cada colaborador, cuál es a su vez el Líder de ESE Facilitador en CatColab vigente — sin depender de que el campo "Líder" de cada colaborador individual esté correctamente llenado a mano.</p>
+      <div class="nota">Esta visibilidad se resuelve consultando CatColab vigente en el momento de la consulta, nunca el dato histórico que quedó grabado en la checada al momento de subirla — así, si la asignación de Facilitador o Líder de alguien cambia, la visibilidad se actualiza sola la próxima vez que alguien abra la pestaña, sin necesitar ninguna corrección manual sobre datos ya guardados.</div>
+
+      <h3>3.4 Restricción de acceso a Carga de Data</h3>
+      <p>La pestaña Carga de Data —desde donde se suben las checadas nuevas y se ejecutan herramientas de reparación de datos maestro, cálculo de horas extra, reapertura de semanas cerradas, y actualización masiva de CatColab— está restringida exclusivamente a los roles TyC y Admin del mismo catálogo CatAccesos. El resto de los roles no pueden siquiera abrir la pestaña.</p>
+      <p>Dado que varias de estas herramientas modifican datos en lote (potencialmente cientos de registros de una sola vez), todas siguen el mismo patrón de seguridad operativa:</p>
+      <ul>
+        <li>Ninguna acción se ejecuta directo — primero se busca/compara y se muestra un resumen (cuántos colaboradores, cuántos registros) antes de tocar nada.</li>
+        <li>Casillas de selección por renglón (marcadas o desmarcadas según el riesgo de la acción) para que el administrador decida exactamente qué aplicar, no todo-o-nada.</li>
+        <li>Modal de confirmación propio (no el <span class="codigo-inline">confirm()</span> nativo del navegador) antes de cualquier escritura, mostrando el número exacto de registros afectados.</li>
+        <li>Los cambios masivos se ejecutan en lotes de 20 (límite técnico de Microsoft Graph por llamada) con registro de progreso visible.</li>
+      </ul>
+
+      <h3>3.5 Permisos de listas de SharePoint — lección operativa</h3>
+      <p>Se detectó más de una vez el mismo patrón de falla: una lista de SharePoint con permisos únicos (no heredados del sitio) devuelve 0 registros o un error 403 sin ningún mensaje claro para quien no tiene permiso de lectura específico sobre ESA lista en particular — ocurrió primero con CatAccesos y después con Log. La lección operativa incorporada al portal: ante un 403 o un conteo de "0 registros" sin razón aparente, lo primero a revisar son los permisos únicos vs. heredados de esa lista puntual, no el código de la aplicación.</p>
+
+      <h3>3.6 Vulnerabilidad de sesión compartida entre portales — corregida</h3>
+      <p>Como Biométricos Colaboradores comparte dominio raíz (btubictum.github.io) con los demás portales del ecosistema, se detectó la misma vulnerabilidad de localStorage compartido documentada en el proyecto U-Home: el código validaba la sola presencia de una cuenta en caché del navegador, sin confirmar que esa cuenta tuviera asignación real de acceso a Biométricos específicamente. Corregido exigiendo acquireTokenSilent / ssoSilent propio de esta app antes de conceder acceso — mismo criterio aplicado en los demás portales del ecosistema.</p>
+
+      <h3>3.7 Incidentes de integridad de datos corregidos</h3>
+      <p>Aunque no son vulnerabilidades de acceso, los siguientes incidentes comprometieron la integridad de los datos y se documentan aquí porque su causa raíz y su método de diagnóstico son relevantes para cualquier auditoría de seguridad de la información del portal:</p>
+      <ul>
+        <li><b>Fecha corrida un día:</b> guardar una fecha-sin-hora como medianoche UTC (T00:00:00Z) hacía que SharePoint la reinterpretara en hora local de México y la corriera un día hacia atrás. Corregido guardando siempre a mediodía UTC (T12:00:00Z), fuera del rango de reinterpretación de cualquier zona horaria del país.</li>
+        <li><b>Rechazo masivo de inserciones ("generalException"):</b> una columna (HoraExtra) se había creado como texto en SharePoint en vez de número; el código enviaba un valor numérico, y el choque de tipos producía un error genérico sin relación aparente con la causa real. Afectaba silenciosamente solo a los registros elegibles para horas extra. Corregido igualando el tipo de columna, sin cambios de código.</li>
+        <li><b>Visibilidad jerárquica incompleta para Líderes</b> (ver 3.3): un Líder no veía a los colaboradores de sus Facilitadores, solo a los suyos directos — corregido resolviendo el segundo salto del árbol organizacional en cada consulta.</li>
+      </ul>
+
+      <h2>4. Infraestructura y operación</h2>
+      <h3>4.1 Hosting</h3>
+      <table>
+        <tr><th>Componente</th><th>Detalle</th></tr>
+        <tr><td>Hosting estático</td><td>GitHub Pages, organización btubictum, repositorio info_biometricos</td></tr>
+        <tr><td>URL pública</td><td>https://btubictum.github.io/info_biometricos/</td></tr>
+        <tr><td>Costo de hosting</td><td>$0 (GitHub Pages gratuito para este tipo de repositorio)</td></tr>
+        <tr><td>Backend propio</td><td>Ninguno — toda la lógica corre en el navegador del usuario</td></tr>
+        <tr><td>Base de datos</td><td>Ninguna tradicional — listas de SharePoint (ver sección 2.4)</td></tr>
+      </table>
+
+      <h3>4.2 Versionado y despliegue</h3>
+      <p>No existe un pipeline de CI/CD formal — cada actualización se publica subiendo directamente el archivo HTML corregido al repositorio, lo cual publica la nueva versión de inmediato en GitHub Pages. El portal mantiene un número de versión visible en pantalla (actualmente v98) para poder rastrear qué build está corriendo en producción en cualquier momento dado.</p>
+
+      <h3>4.3 Automatización planeada — infraestructura adicional requerida</h3>
+      <p>El proyecto de automatización descrito en la sección 2.6 introduce, a diferencia del resto del portal, dependencias de infraestructura tradicionales que hoy no existen en Biométricos Colaboradores:</p>
+      <ul>
+        <li>Una máquina virtual (o servidor) encendida de forma permanente para correr los flujos programados.</li>
+        <li>Licencia de Power Automate Desktop en modalidad Unattended (desatendido), necesaria para ejecutar flujos sin un usuario presente frente a la pantalla.</li>
+        <li>Cuentas de servicio dedicadas para iniciar sesión tanto en HikCentral como en el portal.</li>
+        <li>Una excepción de Acceso Condicional (MFA) para esas cuentas de servicio, limitada específicamente a esa máquina.</li>
+      </ul>
+
+      <h2>5. Anexo</h2>
+      <h3>5.1 Catálogo completo de códigos de incidencia</h3>
+      <table>
+        <tr><th>Código</th><th>Significado</th><th>Roles que pueden asignarlo</th></tr>
+        <tr><td>F</td><td>Falta</td><td>Facilitador, Líder, Admin</td></tr>
+        <tr><td>A</td><td>Asistencia</td><td>TyC, Admin (además, se autoasigna al detectar checada real)</td></tr>
+        <tr><td>PSG</td><td>Permiso sin goce</td><td>Facilitador, Líder, Admin</td></tr>
+        <tr><td>P</td><td>Permiso con goce</td><td>TyC, Admin</td></tr>
+        <tr><td>I</td><td>Incapacidad (seguro social)</td><td>Enfermera, Admin</td></tr>
+        <tr><td>II</td><td>Incapacidad interna</td><td>Enfermera, Admin</td></tr>
+        <tr><td>V</td><td>Vacaciones</td><td>Facilitador, Líder (solo hoy o futuro), Admin (cualquier fecha)</td></tr>
+        <tr><td>D</td><td>Descanso</td><td>Facilitador, Líder, Admin</td></tr>
+        <tr><td>R</td><td>Retardo</td><td>TyC, Admin (además, se autodetecta y preselecciona)</td></tr>
+        <tr><td>RJ</td><td>Retardo justificado</td><td>TyC, Admin</td></tr>
+      </table>
+
+      <h3>5.2 Enrutamiento de autoría al guardar una incidencia</h3>
+      <p>El campo que registra "quién hizo el cambio y cuándo" depende de tres condiciones evaluadas en este orden de prioridad:</p>
+      <ol>
+        <li>Si quien guarda tiene rol Enfermera (aunque tenga otros roles también): siempre se registra en <b>ModificadoPorEnfermeria</b> — Enfermería puede capturar I/II en cualquier momento, sin depender del ciclo de cierre semanal.</li>
+        <li>Si no es Enfermera y la semana ya estaba cerrada: se registra en <b>ModificadoPorTyC</b> — es una corrección posterior de un rol elevado.</li>
+        <li>Si no es Enfermera y la semana no estaba cerrada: se registra en <b>GuardadoPor</b> — flujo normal, para cualquier rol incluido Facilitador/Líder.</li>
+      </ol>
+
+      <h3>5.3 Grupos de seguridad en Entra ID asociados a este portal</h3>
+      <table>
+        <tr><th>Grupo</th><th>Uso</th></tr>
+        <tr><td>U-Biometricos-Invitados</td><td>Acceso de personal externo/invitado al portal</td></tr>
+        <tr><td>U-Biometricos-Colaboradores</td><td>Acceso de personal interno al portal</td></tr>
+      </table>
+      <p>Estos dos grupos, junto con U-Colaboradores (grupo dinámico de todo el tenant), son los que Entra ID exige como condición de "Assignment required = Sí" para poder abrir la aplicación Ubi-Biometricos en absoluto — la primera puerta de seguridad, previa a cualquier lógica de roles interna descrita en la sección 3.</p>
+    </div>
+  </div>
+
+  <!-- ---- Biométricos > Diagrama ---- -->
+  <div id="bio-diagram" class="subview">
+    <div class="diagram-titulo">
+      <h2>Biométricos Colaboradores — Diagrama de arquitectura</h2>
+      <p>Flujo de datos, modelo de listas y seguridad por rol</p>
+    </div>
+
+    <!-- Bloque 1: flujo de datos -->
+    <div class="bio-bloque">
+      <div class="bio-bloque-titulo"><span class="num">1</span> Flujo de datos: de HikCentral a las pestañas</div>
+      <div class="bio-fila">
+        <div class="bio-nodo"><span class="icono">🖥️</span><span class="nombre">HikCentral<br>Professional</span><span class="sub">172.21.3.4</span></div>
+        <div class="bio-flecha"></div>
+        <div class="bio-nodo"><span class="icono">📤</span><span class="nombre">Carga de<br>Data</span><span class="sub">Excel manual · RPA en construcción</span></div>
+        <div class="bio-flecha"></div>
+        <div class="bio-nodo" style="border-color:var(--verde); border-width:3px;"><span class="icono">🗄️</span><span class="nombre">RegBio26</span><span class="sub">Checadas crudas</span></div>
+
+        <div class="bio-tabs-wrap">
+          <div class="bio-tabs-fila">
+            <div class="bio-tab-card"><span class="icono">📋</span><span class="nombre">Registros</span></div>
+            <div class="bio-tab-card"><span class="icono">📅</span><span class="nombre">Por Día</span></div>
+            <div class="bio-tab-card"><span class="icono">🗓️</span><span class="nombre">Por Semana</span></div>
+            <div class="bio-tab-card"><span class="icono">📡</span><span class="nombre">Por Biométrico</span></div>
+            <div class="bio-tab-card"><span class="icono">📝</span><span class="nombre">Registro<br>Incidencias</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bloque 2: modelo de datos -->
+    <div class="bio-bloque">
+      <div class="bio-bloque-titulo"><span class="num">2</span> Modelo de datos — listas de SharePoint</div>
+      <div class="bio-lista-grid">
+        <div class="bio-lista-card"><span class="icono">🗄️</span><span class="nombre">RegBio26</span><span class="desc">Checadas individuales, snapshot de Facilitador/Líder/Jornada</span></div>
+        <div class="bio-lista-card"><span class="icono">👤</span><span class="nombre">CatColab</span><span class="desc">Catálogo maestro vigente: Facilitador, Líder, Jornada, Descansos</span></div>
+        <div class="bio-lista-card"><span class="icono">🕐</span><span class="nombre">CatTurnos</span><span class="desc">20 turnos con horario y horas por día</span></div>
+        <div class="bio-lista-card"><span class="icono">🔑</span><span class="nombre">CatAccesos</span><span class="desc">Roles por correo: Facilitador/Líder/TyC/Enfermera/Admin</span></div>
+        <div class="bio-lista-card"><span class="icono">📝</span><span class="nombre">RegIncidencias</span><span class="desc">Captura de incidencias por colaborador y día, con autoría y cierre</span></div>
+        <div class="bio-lista-card"><span class="icono">📖</span><span class="nombre">Incidencias</span><span class="desc">Catálogo de códigos disponibles (F, A, PSG, R, RJ…)</span></div>
+        <div class="bio-lista-card"><span class="icono">🧾</span><span class="nombre">Log</span><span class="desc">Bitácora de cada Carga de Data</span></div>
+      </div>
+    </div>
+
+    <!-- Bloque 3: seguridad y roles -->
+    <div class="bio-bloque">
+      <div class="bio-bloque-titulo"><span class="num">3</span> Seguridad: autenticación y roles</div>
+      <div class="bio-fila" style="margin-bottom:24px;">
+        <div class="bio-nodo"><span class="icono">🔐</span><span class="nombre">Microsoft<br>Entra ID</span><span class="sub">Login + grupos</span></div>
+        <div class="bio-flecha"></div>
+        <div class="bio-nodo" style="border-color:var(--verde); border-width:3px;"><span class="icono">🔑</span><span class="nombre">CatAccesos</span><span class="sub">Roles por correo</span></div>
+      </div>
+      <div class="bio-roles-grid">
+        <div class="bio-role-card r-facilitador"><div class="nombre">Facilitador</div><div class="codigos">F · PSG · V · D</div><div class="alcance">Solo sus colaboradores directos</div></div>
+        <div class="bio-role-card r-lider"><div class="nombre">Líder</div><div class="codigos">F · PSG · V · D</div><div class="alcance">Directos + los de todos sus Facilitadores</div></div>
+        <div class="bio-role-card r-tyc"><div class="nombre">TyC</div><div class="codigos">P · A · R · RJ</div><div class="alcance">Todos los colaboradores + edita días con checada real</div></div>
+        <div class="bio-role-card r-enfermera"><div class="nombre">Enfermera</div><div class="codigos">I · II</div><div class="alcance">Todos los colaboradores, cualquier momento</div></div>
+        <div class="bio-role-card r-admin"><div class="nombre">Admin</div><div class="codigos">Los 10 códigos</div><div class="alcance">Todos los colaboradores, sin restricción</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="version-badge">Doc v1</div>
+
+<script>
+function mostrarMenu(){
+  document.getElementById('view-menu').classList.add('active');
+  document.getElementById('view-uhome').classList.remove('active');
+  document.getElementById('view-bio').classList.remove('active');
+  window.scrollTo(0,0);
+}
+function mostrarProyecto(nombre){
+  document.getElementById('view-menu').classList.remove('active');
+  document.getElementById('view-uhome').classList.toggle('active', nombre==='uhome');
+  document.getElementById('view-bio').classList.toggle('active', nombre==='bio');
+  mostrarSubtab(nombre, 'doc');
+  window.scrollTo(0,0);
+}
+function mostrarSubtab(proyecto, tab){
+  document.getElementById(proyecto+'-doc').classList.toggle('active', tab==='doc');
+  document.getElementById(proyecto+'-diagram').classList.toggle('active', tab==='diagram');
+  document.getElementById(proyecto+'-btn-doc').classList.toggle('active', tab==='doc');
+  document.getElementById(proyecto+'-btn-diagram').classList.toggle('active', tab==='diagram');
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
